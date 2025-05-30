@@ -10,6 +10,10 @@ module.exports = {
         backgroundPurple: "#532B75",
         spotifyYellow: "#FFD700",
       },
+      fontFamily: {
+        title: ["'Luckiest Guy'", "cursive"],
+        body: ["'Vesper Libre'", "serif"],
+      }
     },
   },
   plugins: [],
