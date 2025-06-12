@@ -1,8 +1,15 @@
+import { useNavigate } from 'react-router-dom';
 import headphones from '../assets/headphones.svg';
 import homeIcon from '../assets/home.svg';
 import spotifyIcon from '../assets/spotify.svg';
 
 function Home() {
+  const navigate = useNavigate();
+
+  const iniciarLogin = () => {
+    window.location.href = 'https://backend-divebackintime.onrender.com/login';
+  };
+
   return (
     <div className="min-h-screen bg-backgroundPurple text-white flex flex-col items-center justify-center px-4 text-center font-body">
       <div className="absolute top-6 right-6">
@@ -25,7 +32,10 @@ function Home() {
           desde o seu nascimento
         </p>
 
-        <button className="mt-6 bg-spotifyYellow text-black font-bold px-6 py-3 rounded-full flex items-center gap-2 hover:opacity-90">
+        <button
+          onClick={iniciarLogin}
+          className="mt-6 bg-spotifyYellow text-black font-bold px-6 py-3 rounded-full flex items-center gap-2 hover:opacity-90"
+        >
           ENTRE COM SPOTIFY <img src={spotifyIcon} alt="Spotify" className="h-6 w-6" />
         </button>
 

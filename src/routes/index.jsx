@@ -1,14 +1,21 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Home from '../pages/Home';
-import ConfirmarPlaylist from '../pages/ConfirmarPlaylist';
+import Callback from '../pages/Callback';
+import Selecionar from '../pages/Selecionar';
+import Criar from '../pages/CriarPlaylist'
 
-export default function AppRoutes() {
+
+function AppRoutes() {
   return (
     <Router>
       <Routes>
         <Route path="/" element={<Home />} />
-        <Route path="/confirmar" element={<ConfirmarPlaylist />} />
+        <Route path="/callback" element={<Callback />} />
+        <Route path="/selecionar" element={<Selecionar />} />
+        <Route path="/criar" element={<Criar />} />
       </Routes>
     </Router>
   );
 }
+
+export default AppRoutes;
