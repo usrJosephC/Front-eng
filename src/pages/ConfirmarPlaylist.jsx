@@ -26,14 +26,12 @@ function ConfirmarPlaylist() {
         if (!tokenResponse.ok) throw new Error('Erro ao obter o token');
         const { access_token } = await tokenResponse.json();
 
-        const res = await fetch('https://backend-divebackintime.onrender.com/playlist-details', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-             
-          },
+        const params = new URLSearchParams();
+        selectedSongIds.forEach(id => params.append('song_ids', id));
+
+        const res = await fetch(`https://backend-divebackintime.onrender.com/playlist-details?${params.toString()}`, {
+          method: 'GET',
           credentials: 'include',
-          body: JSON.stringify({ song_ids: selectedSongIds })
         });
 
         if (!res.ok) {
@@ -68,13 +66,13 @@ function ConfirmarPlaylist() {
       const years = selectedSongsDetails.map(song => song.year);
       const songUris = selectedSongsDetails.map(song => song.uri);
 
-      const response = await fetch('https://backend-divebackintime.onrender.com/playlist', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+      const params = new URLSearchParams();
+      years.forEach(year => params.append('years', year));
+      songUris.forEach(uri => params.append('song_uris', uri));
+
+      const response = await fetch(`https://backend-divebackintime.onrender.com/playlist?${params.toString()}`, {
+        method: 'GET',
         credentials: 'include',
-        body: JSON.stringify({ years, song_uris: songUris })
       });
 
       if (response.ok) {
