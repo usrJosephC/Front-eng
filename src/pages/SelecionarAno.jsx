@@ -5,7 +5,7 @@ import calendarIcon from '../assets/calendar.svg';
 
 const SelecionarAno = () => {
   const [selectedYear, setSelectedYear] = useState('');
-  const [errorMessage, setErrorMessage] = useState(''); // mensagem só para erro de campo vazio
+  const [errorMessage, setErrorMessage] = useState('');
   const navigate = useNavigate();
 
   const enviarAno = async () => {
@@ -14,21 +14,36 @@ const SelecionarAno = () => {
       return;
     }
 
-    setErrorMessage(''); // limpa a mensagem de erro ao enviar
+    setErrorMessage(''); 
+
+    const accessToken = localStorage.getItem('accessToken');
+    if (!accessToken) {
+      console.error('Access token não encontrado.');
+      navigate('/')
+      return;
+    }
 
     try {
-      const response = await fetch(`/year?year=${encodeURIComponent(selectedYear)}`, {
-        method: 'GET',
+      const response = await fetch('https://backend-divebackintime.onrender.com/year', { 
+        method: 'POST', 
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${accessToken}` 
+        },
+        body: JSON.stringify({ year: parseInt(selectedYear) }),
       });
 
       if (response.ok) {
         console.log('Ano enviado com sucesso!');
+        navigate('/exibir', {state: {birthYear: parseInt(selectedYear)}});
       } else {
-        console.log('Erro ao enviar o ano.');
+        const errorData = await response.json();
+        setErrorMessage(errorData.message || 'Erro ao enviar o ano para o servidor.');
+        console.error('Erro ao enviar o ano:', errorData);
       }
     } catch (error) {
       console.error('Erro na requisição:', error);
-      console.log('Erro na conexão com o servidor.');
+      setErrorMessage('Erro na conexão com o servidor. Tente novamente.');
     }
   };
 
