@@ -15,8 +15,13 @@ const CriarPlaylist = () => {
     const fetchSongs = async () => {
       try {
         const res = await fetch('https://backend-divebackintime.onrender.com/playlist', {
+          method: 'GET',
           credentials: 'include',
+          headers: {
+            'Content-Type': 'application/json'
+          }
         });
+
         if (!res.ok) throw new Error('Erro ao buscar músicas');
         const data = await res.json();
         setSongs(data);
@@ -50,8 +55,8 @@ const CriarPlaylist = () => {
       
       const res = await fetch('https://backend-divebackintime.onrender.com/playlist', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ songIds: selectedSongs }),
       });
 

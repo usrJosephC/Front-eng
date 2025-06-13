@@ -17,7 +17,9 @@ const SelecionarAno = () => {
     setErrorMessage(''); 
 
     try {
-      const tokenResponse = await fetch('https://backend-divebackintime.onrender.com/token');
+      const tokenResponse = await fetch('https://backend-divebackintime.onrender.com/token', {
+        credentials: 'include'
+      });
       if (!tokenResponse.ok) {
         throw new Error('Erro ao obter token');
       }
