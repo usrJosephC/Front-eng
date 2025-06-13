@@ -1,6 +1,5 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Home from '../pages/Home';
-import Callback from '../pages/Callback';
 import SelecionarAno from '../pages/SelecionarAno';
 import ExibirMusica from '../pages/ExibirMusica';
 import CriarPlaylist from '../pages/CriarPlaylist';
@@ -11,7 +10,6 @@ export default function AppRoutes() {
     <Router>
       <Routes>
         <Route path="/" element={<Home />} />
-        <Route path="/callback" element={<Callback />} />
         <Route path="/selecionar" element={<SelecionarAno />} />
         <Route path="/exibir" element={<ExibirMusica />} />
         <Route path="/criar" element={<CriarPlaylist />} />

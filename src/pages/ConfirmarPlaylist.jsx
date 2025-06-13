@@ -21,19 +21,16 @@ function ConfirmarPlaylist() {
         return;
       }
 
-      const accessToken = localStorage.getItem('access_token');
-      if (!accessToken) {
-        navigate('/'); 
-        return;
-      }
+      try {  
+        const tokenResponse = await fetch('https://backend-divebackintime.onrender.com/token');
+        if (!tokenResponse.ok) throw new Error('Erro ao obter o token');
+        const { access_token } = await tokenResponse.json();
 
-      setLoading(true);
-      try {
         const res = await fetch('https://backend-divebackintime.onrender.com/playlist-details', {
           method: 'POST',
-          headers: { 
+          headers: {
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${accessToken}`
+            'Authorization': `Bearer ${access_token}`
           },
           body: JSON.stringify({ song_ids: selectedSongIds })
         });
@@ -41,8 +38,9 @@ function ConfirmarPlaylist() {
         if (!res.ok) {
           throw new Error('Erro ao buscar detalhes das músicas selecionadas.');
         }
+
         const data = await res.json();
-        setSelectedSongsDetails(data); //
+        setSelectedSongsDetails(data);
       } catch (err) {
         console.error("Erro ao carregar detalhes das músicas:", err);
         setError("Não foi possível carregar os detalhes das músicas. Tente novamente.");
@@ -56,33 +54,32 @@ function ConfirmarPlaylist() {
   }, [navigate]);
 
   const handleCreatePlaylistOnSpotify = async () => {
-    const accessToken = localStorage.getItem('access_token');
-    if (!accessToken || selectedSongsDetails.length === 0) {
-      setError('Token ou músicas não disponíveis para criar a playlist.');
+    if (selectedSongsDetails.length === 0) {
+      setError('Músicas não disponíveis para criar a playlist.');
       return;
     }
 
     try {
-      // Conforme sua especificação, enviar uma lista com os anos ou IDs
-      // Se o backend espera os anos dasm úsicas selecionadas:
-      const years = selectedSongsDetails.map(song => song.year); 
-      // Se o backend espera os IDs das músicas selecionadas:
-      const songUris = selectedSongsDetails.map(song => song.uri); // Assumindo que o objeto 'song' tem uma 'uri' do Spotify
+      const tokenResponse = await fetch('https://backend-divebackintime.onrender.com/token');
+      if (!tokenResponse.ok) throw new Error('Erro ao obter o token');
+      const { access_token } = await tokenResponse.json();
+
+      const years = selectedSongsDetails.map(song => song.year);
+      const songUris = selectedSongsDetails.map(song => song.uri);
 
       const response = await fetch('https://backend-divebackintime.onrender.com/playlist', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${accessToken}`
+          'Authorization': `Bearer ${access_token}`
         },
-        body: JSON.stringify({ years: years, song_uris: songUris }) // Envie o que seu backend espera
+        body: JSON.stringify({ years, song_uris: songUris })
       });
 
       if (response.ok) {
         console.log('Playlist criada com sucesso no Spotify!');
-        setPlaylistCreated(true); // Atualiza o estado para mostrar mensagem de sucesso
-        // Saber se mantém ou não...
-        localStorage.removeItem('selectedSongIds'); 
+        setPlaylistCreated(true);
+        localStorage.removeItem('selectedSongIds');
       } else {
         const errorData = await response.json();
         setError(errorData.message || 'Erro ao criar playlist no Spotify.');
@@ -124,12 +121,11 @@ function ConfirmarPlaylist() {
           ) : (
             <>
               <span className="text-sm ml-2">{selectedSongsDetails.length} músicas</span>
-
               <div className="mt-4 space-y-3">
                 {selectedSongsDetails.map((song) => (
                   <div key={song.id} className="flex justify-between items-center bg-yellow-300 rounded-full px-4 py-2">
                     <div className="flex items-center gap-3">
-                      <img src={discoIcon} alt="Disco" className="h-6 w-6" /> {/* Pode ser a capa da música */}
+                      <img src={discoIcon} alt="Disco" className="h-6 w-6" />
                       <div>
                         <p className="text-sm font-medium">{song.title}</p>
                         <p className="text-xs text-black/80">{song.artist}</p>

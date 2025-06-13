@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react"; // Adicionado useEffect para buscar músicas reais
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import homeIcon from '../assets/home.svg';
 import headphones from '../assets/headphones.svg';
@@ -6,48 +6,31 @@ import sendIcon from '../assets/send.svg';
 
 const CriarPlaylist = () => {
   const navigate = useNavigate();
-  const [songs, setSongs] = useState([]); // Agora as músicas virão do backend
+  const [songs, setSongs] = useState([]);
   const [selectedSongs, setSelectedSongs] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    const fetchSongsForPlaylist = async () => {
-      const accessToken = localStorage.getItem('access_token');
-      if (!accessToken) {
-        navigate('/'); // Redireciona se não houver token
-        return;
-      }
-
-      setLoading(true);
+    const fetchSongs = async () => {
       try {
-        // Você precisará de uma rota no backend que retorne as músicas para seleção da playlist
-        // A rota `/playlist-selection-songs` é um exemplo. Ajuste conforme seu backend.
-        const res = await fetch('https://backend-divebackintime.onrender.com/playlist-selection-songs', {
-          method: 'GET',
-          headers: { 'Authorization': `Bearer ${accessToken}` },
+        const res = await fetch('https://backend-divebackintime.onrender.com/playlist', {
+          credentials: 'include',
         });
-
-        if (!res.ok) {
-          throw new Error('Erro ao buscar músicas para playlist');
-        }
+        if (!res.ok) throw new Error('Erro ao buscar músicas');
         const data = await res.json();
-        // Supondo que 'data' é um array de objetos de música com id, title, artist, year
         setSongs(data);
-        // Inicialmente, todas as músicas podem ser selecionadas ou nenhuma, dependendo da sua regra.
-        // Aqui, selecionamos todas por padrão para replicar o comportamento original.
-        setSelectedSongs(data.map(song => song.id)); 
+        setSelectedSongs(data.map(song => song.id)); // Seleciona todas por padrão
       } catch (err) {
-        console.error("Erro ao buscar músicas para a playlist:", err);
-        setError("Não foi possível carregar as músicas para seleção. Tente novamente.");
-        setSongs([]); // Limpa as músicas em caso de erro
+        console.error(err);
+        setError("Erro ao carregar músicas.");
       } finally {
         setLoading(false);
       }
     };
 
-    fetchSongsForPlaylist();
-  }, [navigate]);
+    fetchSongs();
+  }, []);
 
   const toggleSong = (songId) => {
     setSelectedSongs(prev =>
@@ -61,10 +44,26 @@ const CriarPlaylist = () => {
     setSelectedSongs(songs.map(song => song.id));
   };
 
-  const handleCreatePlaylist = () => {
-    // Armazena APENAS os IDs das músicas selecionadas
-    localStorage.setItem("selectedSongIds", JSON.stringify(selectedSongs)); 
-    navigate("/confirmar");
+  const handleCreatePlaylist = async () => {
+    try {
+      localStorage.setItem('selectedSongIds', JSON.stringify(selectedSongs));
+      
+      const res = await fetch('https://backend-divebackintime.onrender.com/playlist', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ songIds: selectedSongs }),
+      });
+
+      if (!res.ok) {
+        throw new Error('Erro ao salvar playlist no backend');
+      }
+
+      navigate('/confirmar');
+    } catch (err) {
+      console.error("Erro ao criar playlist:", err);
+      alert("Erro ao salvar a playlist. Tente novamente.");
+    }
   };
 
   return (
@@ -112,7 +111,7 @@ const CriarPlaylist = () => {
             <div className="space-y-4">
               {songs.map((song) => (
                 <div
-                  key={song.id} // Use um ID único da música para a key
+                  key={song.id}
                   className="flex justify-between items-center px-4 py-2 rounded-md border border-white text-left transition-all hover:bg-white/10"
                 >
                   <div className="flex items-center gap-3">
@@ -138,7 +137,7 @@ const CriarPlaylist = () => {
       </div>
 
       <button
-        onClick={handleCreatePlaylist} // Usa a função que salva e navega
+        onClick={handleCreatePlaylist}
         disabled={selectedSongs.length === 0 || loading}
         className={`mt-8 flex items-center gap-2 bg-spotifyYellow text-black font-semibold px-6 py-3 rounded-full ${
           selectedSongs.length === 0 || loading ? 'opacity-50 cursor-not-allowed' : ''

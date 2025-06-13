@@ -16,34 +16,38 @@ const SelecionarAno = () => {
 
     setErrorMessage(''); 
 
-    const accessToken = localStorage.getItem('accessToken');
-    if (!accessToken) {
-      console.error('Access token não encontrado.');
-      navigate('/')
-      return;
-    }
-
     try {
-      const response = await fetch('https://backend-divebackintime.onrender.com/year', { 
-        method: 'POST', 
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${accessToken}` 
+      const tokenResponse = await fetch('https://backend-divebackintime.onrender.com/token');
+      if (!tokenResponse.ok) {
+        throw new Error('Erro ao obter token');
+      }
+      const tokenData = await tokenResponse.json();
+      const accessToken = tokenData.access_token;
+      
+      if (!accessToken) {
+        throw new Error('Token inválido recebido do servidor')
+      }
+
+      const response = await fetch('https://backend-divebackintime.onrender.com/year', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${accessToken}`
         },
-        body: JSON.stringify({ year: parseInt(selectedYear) }),
+        body: JSON.stringify({year: parseInt(selectedYear) }),
       });
 
       if (response.ok) {
-        console.log('Ano enviado com sucesso!');
+        console.log('Ano enviado com sucesso!')
         navigate('/exibir', {state: {birthYear: parseInt(selectedYear)}});
       } else {
         const errorData = await response.json();
         setErrorMessage(errorData.message || 'Erro ao enviar o ano para o servidor.');
-        console.error('Erro ao enviar o ano:', errorData);
+        console.error('Erro ao enviar o ano: ', errorData);
       }
     } catch (error) {
       console.error('Erro na requisição:', error);
-      setErrorMessage('Erro na conexão com o servidor. Tente novamente.');
+      setErrorMessage('Erro na conexão  com o servidor. Tente Novamente.');
     }
   };
 
