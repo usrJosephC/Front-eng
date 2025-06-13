@@ -110,7 +110,7 @@ function ExibirMusica() { // birthYear will come from location state
           {
             method: "GET",
             credentials: "include", // This might not be needed if using Bearer token
-            headers: { Authorization: `Bearer ${token}` },
+            headers: { 'Content-Type': 'application/json' },
           }
         );
         if (!res.ok) throw new Error("Erro ao buscar música");

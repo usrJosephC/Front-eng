@@ -14,34 +14,33 @@ const SelecionarAno = () => {
       return;
     }
 
-    setErrorMessage(''); 
+    setErrorMessage('');
 
     try {
       const tokenResponse = await fetch('https://backend-divebackintime.onrender.com/token', {
-        credentials: 'include'
+        credentials: 'include',
       });
       if (!tokenResponse.ok) {
         throw new Error('Erro ao obter token');
       }
+
       const tokenData = await tokenResponse.json();
       const accessToken = tokenData.access_token;
-      
+
       if (!accessToken) {
-        throw new Error('Token inválido recebido do servidor')
+        throw new Error('Token inválido recebido do servidor');
       }
 
-      const response = await fetch('https://backend-divebackintime.onrender.com/year', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        },
+      const params = new URLSearchParams({ year: selectedYear });
+
+      const response = await fetch(`https://backend-divebackintime.onrender.com/year?${params.toString()}`, {
+        method: 'GET',
         credentials: 'include',
-        body: JSON.stringify({year: parseInt(selectedYear) }),
       });
 
       if (response.ok) {
-        console.log('Ano enviado com sucesso!')
-        navigate('/exibir', {state: {birthYear: parseInt(selectedYear)}});
+        console.log('Ano enviado com sucesso!');
+        navigate('/exibir', { state: { birthYear: parseInt(selectedYear) } });
       } else {
         const errorData = await response.json();
         setErrorMessage(errorData.message || 'Erro ao enviar o ano para o servidor.');
@@ -49,7 +48,7 @@ const SelecionarAno = () => {
       }
     } catch (error) {
       console.error('Erro na requisição:', error);
-      setErrorMessage('Erro na conexão  com o servidor. Tente Novamente.');
+      setErrorMessage('Erro na conexão com o servidor. Tente novamente.');
     }
   };
 
@@ -68,15 +67,12 @@ const SelecionarAno = () => {
         <img src={calendarIcon} alt="Calendar" className="h-16 w-16" />
 
         <div className="flex flex-col items-center gap-4">
-          <div className="text-5xl mb-2"></div>
-
           <h1 className="text-5xl justify-center font-title font-bold text-[#FFFF] mb-4">
             Quando você nasceu?
           </h1>
 
           <p className="max-w-md text-base font-body text-[#FFFF]">
-            Digite o ano do seu nascimento para começar
-            a sua jornada musical através do tempo: <br />
+            Digite o ano do seu nascimento para começar a sua jornada musical através do tempo:
           </p>
 
           <input
@@ -97,9 +93,7 @@ const SelecionarAno = () => {
             Confirmar
           </button>
 
-          <p className="mt-6 text-sm font-body text-[#FFF]">
-            Anos disponíveis: 1946-2024
-          </p>
+          <p className="mt-6 text-sm font-body text-[#FFF]">Anos disponíveis: 1946-2024</p>
 
           {errorMessage && (
             <p className="mt-2 text-sm font-body text-[#FFF]">{errorMessage}</p>
