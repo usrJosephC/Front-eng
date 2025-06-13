@@ -30,8 +30,9 @@ function ConfirmarPlaylist() {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${access_token}`
+             
           },
+          credentials: 'include',
           body: JSON.stringify({ song_ids: selectedSongIds })
         });
 
@@ -71,8 +72,8 @@ function ConfirmarPlaylist() {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${access_token}`
         },
+        credentials: 'include',
         body: JSON.stringify({ years, song_uris: songUris })
       });
 

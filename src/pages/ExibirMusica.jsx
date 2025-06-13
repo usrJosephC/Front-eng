@@ -55,8 +55,8 @@ function ExibirMusica() { // birthYear will come from location state
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
-              'Authorization': `Bearer ${accessToken}` // Add Authorization header
             },
+            credentials: 'include', 
             body: JSON.stringify({ device_id }),
           });
           if (!res.ok) throw new Error('Failed to send device ID to backend');
